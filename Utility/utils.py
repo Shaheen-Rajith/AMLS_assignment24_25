@@ -5,9 +5,12 @@ import numpy as np
 import pandas as pd
 import os
 import torch
+import torch.optim as optim
 from sklearn.metrics import confusion_matrix, classification_report,accuracy_score, precision_score, recall_score, f1_score
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm.auto import tqdm
+
+
 
 def Download_Datasets():
     """
@@ -178,6 +181,50 @@ def CM_Display(cm, class_names,title):
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Confusion Matrix obtained and saved at: {save_path}")
 
+def CNN_Train(model, train_loader, val_loader, n_epochs, lr, device, criterion):
+    train_losses = []
+    val_losses = []
+    model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    for epoch in range(n_epochs):
+        # Training
+        model.train()
+        running_loss, total = 0.0, 0
+
+        # tqdm Progess Bar setup
+        loop = tqdm(train_loader, desc=f"Epoch {epoch+1}/{n_epochs}", leave=False)
+        for images, labels in loop:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad()
+            #forward pass
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            #backprop
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item() * images.size(0)
+            total += images.size(0)
+        avg_train_loss = running_loss / total
+        train_losses.append(avg_train_loss)
+
+        # Validation
+        model.eval()
+        val_loss, val_total = 0.0, 0
+        with torch.no_grad():
+            for images, labels in val_loader:
+                images, labels = images.to(device), labels.to(device)
+                #only forward pass since no training
+                outputs = model(images)
+                loss = criterion(outputs, labels)
+                val_loss += loss.item() * images.size(0)
+                val_total += images.size(0)
+            avg_val_loss = val_loss / val_total
+            val_losses.append(avg_val_loss)
+        print(f"Epoch {epoch+1}/{n_epochs} | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
+    return model, train_losses, val_losses
+
+
 
 def TrainingPlots(train_losses,val_losses,n_epochs,title):
     plt.figure(figsize=(10,6))
@@ -192,7 +239,7 @@ def TrainingPlots(train_losses,val_losses,n_epochs,title):
     plt.savefig(save_path, bbox_inches='tight')
     print(f"Training Loss plot obtained and saved at: {save_path}")
 
-def TestModel_Torch(model, data_loader, device,class_names):
+def TestModel_Torch(model, data_loader, device,class_names,task):
     model.eval()
     preds = []
     targets = []
@@ -205,4 +252,7 @@ def TestModel_Torch(model, data_loader, device,class_names):
             preds.extend(predicted.cpu().numpy())
             targets.extend(labels.cpu().numpy())
     cm = TestModel(targets,preds,class_names)
-    CM_Display(cm, class_names,'CM_A_CNN')
+    if (task == 'B'):
+        CM_Display(cm, class_names,'CM_B_CNN')
+    else:
+        CM_Display(cm, class_names,'CM_A_CNN')
