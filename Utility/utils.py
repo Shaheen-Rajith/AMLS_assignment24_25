@@ -5,7 +5,9 @@ import numpy as np
 import pandas as pd
 import os
 import torch
+from sklearn.metrics import confusion_matrix, classification_report,accuracy_score, precision_score, recall_score, f1_score
 from torch.utils.data import TensorDataset, DataLoader
+from tqdm.auto import tqdm
 
 def Download_Datasets():
     """
@@ -66,7 +68,7 @@ def PreProcess_SK(task):
 
 def PreProcess_Torch(task, batch_size = 32):
     """
-    This function uses the previously downloading npz Dataset files, and does
+    This function uses the previously downloaded npz Dataset files, and does
     needed Data Preprocessing steps for Pytorch DL models like CNNs, the steps 
     include normalization (0-1), ensuring there is a channel dimension, ensuring 
     that the order is channel first (N, C, H, W) as needed for Pytorch and 
@@ -110,3 +112,97 @@ def PreProcess_Torch(task, batch_size = 32):
     test_loader  = DataLoader(test_ds,  batch_size = batch_size, shuffle = False)
 
     return train_loader, val_loader, test_loader
+
+
+def Random_Sample_Visual(x,y,loader,name):
+    '''
+    
+    '''
+    fig , axs = plt.subplots(x,y)
+    images, labels = next(iter(loader))
+    images, labels = next(iter(loader))
+    for i in range(x):
+        for j in range(y):
+            with torch.no_grad():
+                index = torch.randint(len(images) , size=(1,)).item()
+                img = images[index]
+                label = labels[index]
+                if img.shape[0] == 1:
+                    axs[i][j].imshow(img.permute(1, 2, 0), cmap="gray")
+                else:
+                    axs[i][j].imshow((img).squeeze().permute(1, 2, 0), cmap='binary')
+                axs[i][j].set_title(f'Class {label}')
+                axs[i][j].set_xticks([])
+                axs[i][j].set_yticks([])
+    plt.suptitle('Random Samples from Training Data with Class')
+    fig.tight_layout()
+    dir = os.path.join('Results',name)
+    plt.savefig(dir)
+
+def TestModel(true_labels, predicted_labels, label_names):
+    """
+    This function evaluates the ML models and gives performance metric scores for accuracy,
+    precision, recall, F1 score and generates the classification report as well as the confusion 
+    matrix. The function takes y_true (from the test set) and y_pred (model predictions for X_test)
+    along with the class names as parameters and returns the confusion matrix.
+    """
+    # Calculates accuracry, precision, recall and f1 scores.
+    print(f'Accuracy: {accuracy_score(true_labels, predicted_labels)}')
+    print(f'Precision: {precision_score(true_labels, predicted_labels, average="weighted")}')
+    print(f'Recall: {recall_score(true_labels, predicted_labels, average="weighted")}')
+    print(f'F1 Score: {f1_score(true_labels, predicted_labels, average="weighted")}')
+
+    # Generate Classification Report
+    print('Classification Report: ')
+    print(classification_report(true_labels, predicted_labels, target_names=label_names))
+
+    # Generates confusion matrix
+    cm = confusion_matrix(true_labels, predicted_labels)
+    return cm
+
+
+
+def CM_Display(cm, class_names,title):
+    num = len(class_names)
+    fig , ax = plt.subplots()
+    ax.imshow(cm,cmap='binary')
+    ax.set_xticks(np.arange(0, num), labels=class_names,  rotation=90)
+    ax.set_yticks(np.arange(0, num), labels=class_names)
+    ax.set_xlabel('Predicted Labels')
+    ax.set_ylabel('Actual Test Labels')
+    plt.suptitle('Confusion Matrix')
+    for i in range(num):
+        for j in range(num):
+            ax.text(i, j, cm[j, i], ha="center", va="center", color="r")
+    save_path = "Results/"+title+".png"
+    plt.savefig(save_path, bbox_inches='tight')
+    print(f"Confusion Matrix obtained and saved at: {save_path}")
+
+
+def TrainingPlots(train_losses,val_losses,n_epochs,title):
+    plt.figure(figsize=(10,6))
+    plt.plot(range(1, n_epochs+1), train_losses, label='Training Loss', marker='o')
+    plt.plot(range(1, n_epochs+1), val_losses, label='Validation Loss', marker='o')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training And Validation Losses over Epochs')
+    plt.legend()
+    plt.grid(True)
+    save_path = "Results/"+title+".png"
+    plt.savefig(save_path, bbox_inches='tight')
+    print(f"Training Loss plot obtained and saved at: {save_path}")
+
+def TestModel_Torch(model, data_loader, device,class_names):
+    model.eval()
+    preds = []
+    targets = []
+
+    with torch.no_grad():
+        for images, labels in tqdm(data_loader, desc="Evaluating"):
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            preds.extend(predicted.cpu().numpy())
+            targets.extend(labels.cpu().numpy())
+    cm = TestModel(targets,preds,class_names)
+    CM_Display(cm, class_names,'CM_A_CNN')
