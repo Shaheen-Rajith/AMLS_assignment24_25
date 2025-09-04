@@ -7,19 +7,20 @@ class B_CNN(nn.Module):
 
         # Block 1
         self.block = nn.Sequential(
-            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.Conv2d(3, 32, kernel_size=3, padding=1), #32 x 28 x 28
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2), 
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.Dropout(0.25),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1), #64 x 14 x 14
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),   
+            nn.MaxPool2d(kernel_size=2),   #64 x 7 x 7
         )
 
         # Final Classifier Section
         self.classifier = nn.Sequential(
-            nn.Flatten(),              # (64, 1, 1) → (64)
+            nn.Flatten(),              # 64 x 7 x 7 → 3136
             nn.Linear(3136, 256),
             nn.ReLU(), 
             nn.Dropout(0.5), 

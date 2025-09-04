@@ -1,37 +1,44 @@
-# Bird Species Classifier from Audio using CNN and EfficientNet_B0 (AMLS-II Project)
+# ELEC0134 AMLS assignment 2024/2025 
 
-This project implements two deep learning models for classifying bird species from audio clips: a custom convolutional neural network (CNN) and a transfer learning approach using EfficientNet_B0. Audio files are converted into Mel-spectrogram images and classified into one of 24 bird species.
+This project consists of two task A & B, Task A is binary classification of the BreastMNIST dataset where images are labelled as either benign or malignant while Task B is multiclass classification of the BloodMNIST dataset where images are of blood cells belonging to one of 8 classes. Three models have been tested for both tasks, they are: Single Decision Tree, Ensemble of Bagged Decision Trees and CNN based model.
 
 ## Project Structure
- - main.py , Main File, running it will train and evaluate both models.
- - misc.ipynb , Same code as main.py but in notebook format for easier trialing initially.
- - A/ , All Source Code:
-    + cnn_model.py , Custom CNN model Code
-    + data_preproc.py , Contains functions that handle data preprocessing
-    + spec_gen.py , Contains code that converts sound files to mel spectrograms while maintaining folder structure
-    + trans_model.py , Transfer Learning Model Code
-    + utils.py , Contains code for training, testing, and plotting loss curves and confusion matrices
-- Datasets/
-    + Sound-Files , Contains the entire dataset in the form of .ogg sound files grouped by species
-    + Spec-Images , Contains the entire dataset in the form of mel spectrogram images grouped by species
-- Results , Used for storing loss curves and confusion matrices pics
+ - main.py , Main File, running it will train and evaluate all 6 models corresponding to both tasks.
+
+ - A/ , Source Code for Models related to Task A :
+    + A_BaggedDT.py , model Code for ensemble of bagged decision trees model
+    + A_CNN.py , model Code for CNN model
+    + A_DecisionTree.py , model Code for single decision tree model
+
+ - B/ , Source Code for Models related to Task B :
+    + B_BaggedDT.py , model Code for ensemble of bagged decision trees model
+    + B_CNN.py , model Code for CNN model
+    + B_DecisionTree.py , model Code for single decision tree model
+ 
+ - Utility/
+    + utils.py , Contains code for downloading datasets, preprocessing data (for both tree based models and CNN models), training and testing of CNN model, plotting loss curves and confusion matrices, and generating random sample of training dataset.
+
+- Results , Used for storing loss curves, confusion matrices and other results.
 - env/
-    + environment.yml , Code to create a new conda env called "BirdCLEF" with all necessary modules
+    + environment.yml , Code to create a new conda env called "AMLS" with all necessary modules
     + requirements.txt, All needed modules
 - README.md , This file
 
 ## All Packages needed to run the code
 - numpy
-- pandas
 - matplotlib
 - torch
-- torchvision
 - tqdm
-- librosa
 - scikit-learn
-- timm
+- medmnist
 
 ## Instructions
-- git clone the repo, go into the env folder and open terminal
-- run "conda env create -f environment.yml" to create "BirdCLEF" environment with all necessary modules
-- run main.py to train both models, obtain loss plots, accuracy figures and confusion matrices (takes around 1 hour on my laptop with Nvidia GPU) 
+git clone the repo, go into the project root folder and open terminal.
+Run the following code to create a new conda environment named "AMLS" with all the necessary modules.
+```bash
+conda env create -f env/environment.yml
+```
+Go back to the project root folder and run the following code to train the all 3 models for both Task A & B, obtain loss plots, performance metrics and confusion matrices (takes around 10 - 15 mins to run on my laptop with Nvidia GPU)
+```bash
+python3 main.py
+```

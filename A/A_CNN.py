@@ -8,16 +8,16 @@ class A_CNN(nn.Module):
 
         # Feature Extractor Section
         self.block = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(1, 5, kernel_size=3, padding=1),
+            nn.BatchNorm2d(5), #5x28x28
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),  
+            nn.MaxPool2d(kernel_size=2), #5x14x14 
         )
 
         # Final Classifier Section
         self.classifier = nn.Sequential(
-            nn.Flatten(),              # (64, 1, 1) → (64)
-            nn.Linear(6272, 256),
+            nn.Flatten(),              
+            nn.Linear(980, 256), 
             nn.ReLU(), 
             nn.Dropout(0.5), 
             nn.Linear(256, num_classes),  # 2 classes

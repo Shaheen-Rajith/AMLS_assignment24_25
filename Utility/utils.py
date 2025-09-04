@@ -2,7 +2,6 @@ import medmnist
 from medmnist import INFO
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import os
 import torch
 import torch.optim as optim
@@ -119,7 +118,9 @@ def PreProcess_Torch(task, batch_size = 32):
 
 def Random_Sample_Visual(x,y,loader,name):
     '''
-    
+    This function takes x,y values, and the train dataloader to display x*y random 
+    samples from the train dataset, the image is saved with the same name as the provided 
+    parameter
     '''
     fig , axs = plt.subplots(x,y)
     images, labels = next(iter(loader))
@@ -166,6 +167,10 @@ def TestModel(true_labels, predicted_labels, label_names):
 
 
 def CM_Display(cm, class_names,title):
+    '''
+    This is a helper function called on by TestModel to generate a plot of the confusion matrix 
+    and to save it under the given title parameter.
+    '''
     num = len(class_names)
     fig , ax = plt.subplots()
     ax.imshow(cm,cmap='binary')
@@ -182,6 +187,11 @@ def CM_Display(cm, class_names,title):
     print(f"Confusion Matrix obtained and saved at: {save_path}")
 
 def CNN_Train(model, train_loader, val_loader, n_epochs, lr, device, criterion):
+    '''
+    This function is used to train the two CNN models for both tasks, it takes the model,
+    dataloaders (train and val), and other hyper parameters and trains the model as needed,
+    it returns the model along with the list of training and validation losses
+    '''
     train_losses = []
     val_losses = []
     model.to(device)
@@ -227,6 +237,10 @@ def CNN_Train(model, train_loader, val_loader, n_epochs, lr, device, criterion):
 
 
 def TrainingPlots(train_losses,val_losses,n_epochs,title):
+    '''
+    This function is used to generate matplotlib plots of the training and test losses which are given as parameters 
+    along with the number of epochs and title
+    '''
     plt.figure(figsize=(10,6))
     plt.plot(range(1, n_epochs+1), train_losses, label='Training Loss', marker='o')
     plt.plot(range(1, n_epochs+1), val_losses, label='Validation Loss', marker='o')
@@ -240,6 +254,11 @@ def TrainingPlots(train_losses,val_losses,n_epochs,title):
     print(f"Training Loss plot obtained and saved at: {save_path}")
 
 def TestModel_Torch(model, data_loader, device,class_names,task):
+    '''
+    This function passes elements from the test dataloader to receive the predictions, 
+    once predictions for the entire test set is done, it calls the helper function ,
+    TestModel and also calls CM_Display to generate  
+    '''
     model.eval()
     preds = []
     targets = []

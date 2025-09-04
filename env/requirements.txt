@@ -1,9 +1,6 @@
 numpy
-pandas
 matplotlib
 torch
-torchvision
 tqdm
 scikit-learn
 medmnist
-timm
