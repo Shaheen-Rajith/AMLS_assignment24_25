@@ -15,7 +15,7 @@ This project consists of two task A & B, Task A is binary classification of the 
     + B_CNN.py , model Code for CNN model
     + B_DecisionTree.py , model Code for single decision tree model
  
- - Utility/
+ - Utility/ , contains a file called utils.py which is responsible for most of the general tasks in this assignment.
     + utils.py , Contains code for downloading datasets, preprocessing data (for both tree based models and CNN models), training and testing of CNN model, plotting loss curves and confusion matrices, and generating random sample of training dataset.
 
 - Results , Used for storing loss curves, confusion matrices and other results.
@@ -42,3 +42,11 @@ Go back to the project root folder and run the following code to train the all 3
 ```bash
 python3 main.py
 ```
+## Note
+The datasets folder has been not included in the Github Repo as required, The following format is expected for the Datasets folder for the entire program to work as required
+
+- Datasets
+   + BloodMNIST
+      * bloodmnist.npz
+   + BreastMNIST
+      * breastmnist.npz
